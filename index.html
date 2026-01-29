@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Afrosiyo Buyurtma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f2f4f8;
+  margin:0;
+  padding:10px;
+}
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+.card img{
+  width:100%;
+  border-radius:10px;
+}
+.price{
+  font-weight:bold;
+  margin:5px 0;
+}
+input, select, button{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+button{
+  background:#25a244;
+  color:#fff;
+  border:none;
+  font-size:18px;
+}
+.total{
+  font-size:18px;
+  font-weight:bold;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2> AFROSIYO BUYURTMA</h2>
+
+<div class="card">
+  <img src="1.png">
+  <div class="price">1 L (9 ta blok) – 45 000 so‘m</div>
+  <input type="number" id="q1" placeholder="Nechta?" oninput="calc()">
+</div>
+
+<div class="card">
+  <img src="2.png">
+  <div class="price">2.5 L (4 ta blok) – 50 000 so‘m</div>
+  <input type="number" id="q2" placeholder="Nechta?" oninput="calc()">
+</div>
+
+<div class="card">
+  <img src="3.png">
+  <div class="price">5 L – 25 000 so‘m</div>
+  <input type="number" id="q3" placeholder="Nechta?" oninput="calc()">
+</div>
+
+<div class="card">
+  <input type="text" id="name" placeholder="Ismingiz">
+  <input type="tel" id="phone" placeholder="Telefon raqam">
+  <input type="text" id="address" placeholder="Manzil">
+</div>
+
+<div class="card">
+   Yetkazib berish
+  <select id="delivery">
+    <option>Yo‘q</option>
+    <option>Bor</option>
+  </select>
+
+  <div class="total" id="total">Jami: 0 so‘m</div>
+</div>
+
+<button onclick="sendOrder()"> Buyurtma berish</button>
+
+<script>
+function calc(){
+  let q1 = Number(document.getElementById("q1").value || 0);
+  let q2 = Number(document.getElementById("q2").value || 0);
+  let q3 = Number(document.getElementById("q3").value || 0);
+
+  let total = q1*45000 + q2*50000 + q3*25000;
+  document.getElementById("total").innerText = "Jami: "+total+" so‘m";
+}
+
+function sendOrder(){
+  let name = document.getElementById("name").value.trim();
+  let phone = document.getElementById("phone").value.trim();
+  let address = document.getElementById("address").value.trim();
+
+  let q1 = document.getElementById("q1").value || 0;
+  let q2 = document.getElementById("q2").value || 0;
+  let q3 = document.getElementById("q3").value || 0;
+
+  if(name=="" || phone==""){
+    alert(" Ism va telefonni kiriting");
+    return;
+  }
+
+  if(q1==0 && q2==0 && q3==0){
+    alert(" Hech narsa tanlanmagan");
+    return;
+  }
+
+  let delivery = document.getElementById("delivery").value;
+  let total = document.getElementById("total").innerText;
+
+  let text =
+" AFROSIYO BUYURTMA\n\n"+
+" Ism: "+name+"\n"+
+" Tel: "+phone+"\n"+
+" Manzil: "+address+"\n"+
+" Yetkazib: "+delivery+"\n\n"+
+" Buyurtma:\n"+
+"1 L: "+q1+" ta\n"+
+"2.5 L: "+q2+" ta\n"+
+"5 L: "+q3+" ta\n\n"+
+total;
+
+  fetch("https://api.telegram.org/bot7708888984:AAEO7xLnFq3o_4tcPCHcG2UGrrmYNE1l4hs/sendMessage",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      chat_id:"@AfrosiyoBuyurtma",
+      text:text
+    })
+  })
+  .then(()=>{
+    alert(" Buyurtma yuborildi");
+  })
+  .catch(()=>{
+    alert(" Xatolik");
+  });
+}
+</script>
+
+</body>
+</html>

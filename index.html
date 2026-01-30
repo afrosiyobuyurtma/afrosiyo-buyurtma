@@ -2,151 +2,238 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>Afrosiyo Buyurtma</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFROSIYO</title>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f2f4f8;
-  margin:0;
-  padding:10px;
+body{margin:0;font-family:Arial;background:#f2f2f2}
+header{
+ text-align:center;padding:20px;font-size:34px;font-weight:bold;color:#fff;
+ background:linear-gradient(90deg,#e53935,#fbc02d,#1e88e5)
 }
-.card{
-  background:#fff;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-.card img{
-  width:100%;
-  border-radius:10px;
-}
-.price{
-  font-weight:bold;
-  margin:5px 0;
-}
-input, select, button{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px;
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;padding:15px}
+.card{background:#fff;border-radius:12px;padding:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.card img{width:100%;height:200px;object-fit:contain}
+.card input{width:100%;padding:8px;font-size:16px;margin-top:6px}
+.total{padding:15px;font-size:22px;font-weight:bold}
+.form{padding:15px}
+.form input,.form select{
+ width:100%;padding:10px;margin-bottom:10px;font-size:16px
 }
 button{
-  background:#25a244;
-  color:#fff;
-  border:none;
-  font-size:18px;
+ width:100%;padding:15px;font-size:18px;
+ background:#1e88e5;color:white;border:none;border-radius:8px
 }
-.total{
-  font-size:18px;
-  font-weight:bold;
-  margin-top:10px;
-}
+.note{padding:10px;color:#555}
 </style>
 </head>
 
 <body>
 
-<h2> AFROSIYO BUYURTMA</h2>
+<header>AFROSIYO</header>
 
-<div class="card">
-  <img src="1.png">
-  <div class="price">1 L (9 ta blok) � 45 000 so�m</div>
-  <input type="number" id="q1" placeholder="Nechta?" oninput="calc()">
+<div class="grid" id="products"></div>
+
+<div class="total">Jami: <span id="sum">0</span> so‘m</div>
+<div class="note">Chegirma va dostavka kelishiladi</div>
+
+<div class="form">
+ <input id="name" placeholder="Ismingiz">
+ <input id="phone" placeholder="Telefon raqam">
+
+ <select id="region" onchange="loadDistricts()">
+  <option value="">Viloyatni tanlang</option>
+ </select>
+
+ <select id="district">
+  <option value="">Tumanni tanlang</option>
+ </select>
+
+ <input id="address" placeholder="Ko‘cha, uy">
+ <button onclick="sendOrder()">Buyurtma berish</button>
 </div>
-
-<div class="card">
-  <img src="2.png">
-  <div class="price">2.5 L (4 ta blok) � 50 000 so�m</div>
-  <input type="number" id="q2" placeholder="Nechta?" oninput="calc()">
-</div>
-
-<div class="card">
-  <img src="3.png">
-  <div class="price">5 L � 25 000 so�m</div>
-  <input type="number" id="q3" placeholder="Nechta?" oninput="calc()">
-</div>
-
-<div class="card">
-  <input type="text" id="name" placeholder="Ismingiz">
-  <input type="tel" id="phone" placeholder="Telefon raqam">
-  <input type="text" id="address" placeholder="Manzil">
-</div>
-
-<div class="card">
-   Yetkazib berish
-  <select id="delivery">
-    <option>Yo�q</option>
-    <option>Bor</option>
-  </select>
-
-  <div class="total" id="total">Jami: 0 so�m</div>
-</div>
-
-<button onclick="sendOrder()"> Buyurtma berish</button>
 
 <script>
-function calc(){
-  let q1 = Number(document.getElementById("q1").value || 0);
-  let q2 = Number(document.getElementById("q2").value || 0);
-  let q3 = Number(document.getElementById("q3").value || 0);
+/* === TELEGRAM === */
+const BOT_TOKEN="7708888984:AAEO7xLnFq3o_4tcPCHcG2UGrrmYNE1l4hs";
+const CHAT_ID="@AfrosiyoBuyurtma";
 
-  let total = q1*45000 + q2*50000 + q3*25000;
-  document.getElementById("total").innerText = "Jami: "+total+" so�m";
+/* === MAHSULOTLAR === */
+const products=[
+ {n:"Kir yuvish geli",h:"1L",r:"Qizil",p:45000,b:9,img:"Img/qizil1l.jpg"},
+ {n:"Kir yuvish geli",h:"1L",r:"Sariq",p:45000,b:9,img:"Img/sariq1l.png"},
+ {n:"Kir yuvish geli",h:"1L",r:"Ko‘k",p:45000,b:9,img:"Img/kok1l.png"},
+ {n:"Idish yuvish geli",h:"1L",r:"Barcha",p:45000,b:9,img:"Img/idishgeli1l.jpg"},
+
+ {n:"Kir yuvish geli",h:"2.5L",r:"Qizil",p:50000,b:4,img:"Img/qizil2.5l.png"},
+ {n:"Kir yuvish geli",h:"2.5L",r:"Sariq",p:50000,b:4,img:"Img/sariq2.5l.png"},
+ {n:"Kir yuvish geli",h:"2.5L",r:"Ko‘k",p:50000,b:4,img:"Img/kok2.5l.png"},
+ {n:"Idish yuvish geli",h:"2.5L",r:"Barcha",p:50000,b:4,img:"Img/idishgeli2.5l.jpg"},
+
+ {n:"Kir yuvish geli",h:"5L",r:"Qizil",p:25000,b:1,img:"Img/qizil5l.png"},
+ {n:"Kir yuvish geli",h:"5L",r:"Sariq",p:25000,b:1,img:"Img/sariq5l.png"},
+ {n:"Kir yuvish geli",h:"5L",r:"Ko‘k",p:25000,b:1,img:"Img/kok5l.png"},
+ {n:"Idish yuvish geli",h:"5L",r:"Qizil",p:25000,b:1,img:"Img/idishgeliqizil5l.jpg"},
+ {n:"Idish yuvish geli",h:"5L",r:"Sariq",p:25000,b:1,img:"Img/idishgelisariq5l.jpg"},
+ {n:"Idish yuvish geli",h:"5L",r:"Yashil",p:25000,b:1,img:"Img/idishgeliyashil5l.jpg"}
+];
+
+const box=document.getElementById("products");
+products.forEach((x,i)=>{
+ box.innerHTML+=`
+ <div class="card">
+  <img src="${x.img}">
+  <b>${x.n}</b><br>
+  ${x.h} | ${x.r}<br>
+  Narxi: ${x.p} so‘m<br>
+  <b>Blok: ${x.b}</b>
+  <input type="number" min="0" data-i="${i}" oninput="calc()"
+   placeholder="${x.b} karrali">
+ </div>`;
+});
+
+/* === HISOB === */
+function calc(){
+ let sum=0;
+ document.querySelectorAll("input[data-i]").forEach(el=>{
+  const i=el.dataset.i;
+  const q=+el.value||0;
+  if(q>0 && q%products[i].b!==0){
+   el.style.border="2px solid red";
+  }else{
+   el.style.border="";
+   sum+=q*products[i].p;
+  }
+ });
+ document.getElementById("sum").innerText=sum;
 }
 
+/* === VILOYAT / TUMAN === */
+const districts = {
+ "Qoraqalpog‘iston": [
+  "Nukus sh.","Amudaryo","Beruniy","Chimboy","Ellikqal’a",
+  "Kegeyli","Mo‘ynoq","Qanliko‘l","Qo‘ng‘irot","Shumanay",
+  "Taxtako‘pir","To‘rtko‘l","Xo‘jayli"
+ ],
+
+ "Andijon": [
+  "Andijon sh.","Asaka","Baliqchi","Bo‘ston","Buloqboshi",
+  "Izboskan","Jalaquduq","Marhamat","Oltinko‘l",
+  "Paxtaobod","Qo‘rg‘ontepa","Shahrixon","Ulug‘nor"
+ ],
+
+ "Buxoro": [
+  "Buxoro sh.","Buxoro t.","G‘ijduvon","Jondor","Kogon sh.",
+  "Kogon t.","Olot","Peshku","Qorako‘l","Qorovulbozor",
+  "Romitan","Shofirkon","Vobkent"
+ ],
+
+ "Farg‘ona": [
+  "Farg‘ona sh.","Beshariq","Bog‘dod","Buvayda","Dang‘ara",
+  "Furqat","Qo‘shtepa","Quva","Quvasoy",
+  "Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon"
+ ],
+
+ "Jizzax": [
+  "Jizzax sh.","Arnasoy","Baxmal","Do‘stlik","Forish",
+  "G‘allaorol","Mirzacho‘l","Paxtakor","Yangiobod","Zomin"
+ ],
+
+ "Namangan": [
+  "Namangan sh.","Chortoq","Chust","Kosonsoy","Mingbuloq",
+  "Norin","Pop","To‘raqo‘rg‘on","Uychi","Yangiqo‘rg‘on"
+ ],
+
+ "Navoiy": [
+  "Navoiy sh.","Karmana","Konimex","Navbahor",
+  "Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Zarafshon"
+ ],
+
+ "Qashqadaryo": [
+  "Qarshi sh.","Chiroqchi","Dehqonobod","G‘uzor","Kasbi",
+  "Kitob","Koson","Mirishkor","Muborak",
+  "Nishon","Shahrisabz","Yakkabog‘"
+ ],
+
+ "Samarqand": [
+  "Samarqand sh.","Bulung‘ur","Ishtixon","Jomboy",
+  "Kattaqo‘rg‘on sh.","Kattaqo‘rg‘on t.","Narpay",
+  "Nurobod","Oqdaryo","Paxtachi",
+  "Payariq","Qo‘shrabot","Toyloq","Urgut"
+ ],
+
+ "Sirdaryo": [
+  "Guliston sh.","Boyovut","Guliston t.","Mirzaobod",
+  "Oqoltin","Sayxunobod","Sardoba","Xovos","Yangiyer"
+ ],
+
+ "Surxondaryo": [
+  "Termiz sh.","Angor","Bandixon","Boysun","Denov",
+  "Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq",
+  "Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Uzun"
+ ],
+
+ "Toshkent vil.": [
+  "Angren","Bekobod","Bo‘ka","Chinoz","Ohangaron",
+  "Oqqo‘rg‘on","Parkent","Piskent","Quyi Chirchiq",
+  "Yangiyo‘l","Yuqori Chirchiq","Zangiota"
+ ],
+
+ "Toshkent sh.": [
+  "Bektemir","Chilonzor","Hamza","Mirobod","Mirzo Ulug‘bek",
+  "Olmazor","Sergeli","Shayxontohur","Uchtepa",
+  "Yakkasaroy","Yunusobod"
+ ],
+
+ "Xorazm": [
+  "Urganch sh.","Bog‘ot","Gurlan","Hazorasp",
+  "Xiva","Qo‘shko‘pir","Shovot","Urganch t.","Xonqa","Yangiariq","Yangibozor"
+ ]
+};
+
+const regionSel=document.getElementById("region");
+const distSel=document.getElementById("district");
+
+Object.keys(districts).forEach(r=>{
+ regionSel.innerHTML+=`<option>${r}</option>`;
+});
+
+function loadDistricts(){
+ distSel.innerHTML="<option>Tumanni tanlang</option>";
+ districts[regionSel.value]?.forEach(d=>{
+  distSel.innerHTML+=`<option>${d}</option>`;
+ });
+}
+
+/* === TELEGRAMGA YUBORISH === */
 function sendOrder(){
-  let name = document.getElementById("name").value.trim();
-  let phone = document.getElementById("phone").value.trim();
-  let address = document.getElementById("address").value.trim();
 
-  let q1 = document.getElementById("q1").value || 0;
-  let q2 = document.getElementById("q2").value || 0;
-  let q3 = document.getElementById("q3").value || 0;
+ let text="🧾 AFROSIYO BUYURTMA\n\n";
+ let has=false;
 
-  if(name=="" || phone==""){
-    alert(" Ism va telefonni kiriting");
-    return;
+ document.querySelectorAll("input[data-i]").forEach(el=>{
+  const q=+el.value||0;
+  const p=products[el.dataset.i];
+  if(q>0){
+   if(q%p.b!==0){alert("❌ Faqat BLOK bilan!");throw"";}
+   text+=`${p.n} ${p.h} ${p.r} — ${q} dona\n`;
+   has=true;
   }
+ });
 
-  if(q1==0 && q2==0 && q3==0){
-    alert(" Hech narsa tanlanmagan");
-    return;
-  }
+ if(!has){alert("Mahsulot tanlang");return;}
 
-  let delivery = document.getElementById("delivery").value;
-  let total = document.getElementById("total").innerText;
+ text+=`\n👤 ${name.value}\n📞 ${phone.value}
+📍 ${region.value}, ${district.value}, ${address.value}
+💰 Jami: ${sum.innerText} so‘m`;
 
-  let text =
-" AFROSIYO BUYURTMA\n\n"+
-" Ism: "+name+"\n"+
-" Tel: "+phone+"\n"+
-" Manzil: "+address+"\n"+
-" Yetkazib: "+delivery+"\n\n"+
-" Buyurtma:\n"+
-"1 L: "+q1+" ta\n"+
-"2.5 L: "+q2+" ta\n"+
-"5 L: "+q3+" ta\n\n"+
-total;
+ fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({chat_id:CHAT_ID,text})
+ });
 
-  fetch("https://api.telegram.org/bot7708888984:AAEO7xLnFq3o_4tcPCHcG2UGrrmYNE1l4hs/sendMessage",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      chat_id:"@AfrosiyoBuyurtma",
-      text:text
-    })
-  })
-  .then(()=>{
-    alert(" Buyurtma yuborildi");
-  })
-  .catch(()=>{
-    alert(" Xatolik");
-  });
+ alert("✅ Buyurtma yuborildi");
 }
 </script>
 

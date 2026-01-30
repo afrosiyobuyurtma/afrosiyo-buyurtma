@@ -2,31 +2,56 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>Afrosiyo Buyurtma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFROSIYO</title>
+
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0;padding:10px}
-.card{background:#fff;border-radius:10px;padding:10px;margin:10px 0;box-shadow:0 2px 5px #ccc}
-.card img{width:100%;max-height:200px;object-fit:contain}
-button{width:100%;padding:10px;background:#0a7cff;color:#fff;border:none;border-radius:8px;font-size:16px}
-select,input{width:100%;padding:8px;margin:5px 0}
-.price{font-weight:bold;color:green}
-.blockinfo{color:#555;font-size:14px}
+body{margin:0;font-family:Arial;background:#f2f2f2}
+header{
+ text-align:center;padding:20px;font-size:32px;font-weight:bold;color:#fff;
+ background:linear-gradient(90deg,#e53935,#fbc02d,#1e88e5)
+}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;padding:15px}
+.card{background:#fff;border-radius:12px;padding:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.card img{width:100%;height:200px;object-fit:contain}
+.card input{width:100%;padding:8px;font-size:16px;margin-top:6px}
+.total{padding:15px;font-size:22px;font-weight:bold}
+.note{padding:0 15px;color:#555}
+.form{padding:15px}
+.form input,.form select{
+ width:100%;padding:10px;margin-bottom:10px;font-size:16px
+}
+button{
+ width:100%;padding:15px;font-size:18px;
+ background:#1e88e5;color:white;border:none;border-radius:8px
+}
 </style>
 </head>
+
 <body>
 
-<h2>🧴 Afrosiyo mahsulotlari</h2>
+<header>AFROSIYO</header>
 
-<div id="products"></div>
+<div class="grid" id="products"></div>
 
-<h3>📦 Buyurtma ma’lumotlari</h3>
-<input id="name" placeholder="Ismingiz">
-<input id="phone" placeholder="Telefon raqam">
+<div class="total">Jami: <span id="sum">0</span> so‘m</div>
+<div class="note">🚚 Dostavka va 💸 chegirma kelishiladi</div>
 
-<select id="region"></select>
-<select id="district"></select>
+<div class="form">
+ <input id="name" placeholder="Ismingiz">
+ <input id="phone" placeholder="Telefon raqam">
 
-<button onclick="sendOrder()">📨 Buyurtma berish</button>
+ <select id="region" onchange="loadDistricts()">
+  <option value="">Viloyatni tanlang</option>
+ </select>
+
+ <select id="district">
+  <option value="">Tumanni tanlang</option>
+ </select>
+
+ <input id="address" placeholder="Manzil">
+ <button onclick="sendOrder()">Buyurtma berish</button>
+</div>
 
 <script>
 /* 🔴 TELEGRAM */
@@ -35,76 +60,102 @@ const CHAT_ID="@AfrosiyoBuyurtma";
 
 /* 🧴 MAHSULOTLAR */
 const products=[
-{n:"1L Qizil",l:"1L",c:"Qizil",price:45000,block:9,img:"qizil1l.png"},
-{n:"1L Sariq",l:"1L",c:"Sariq",price:45000,block:9,img:"Sariq1l.png"},
-{n:"1L Ko‘k",l:"1L",c:"Ko‘k",price:45000,block:9,img:"kok1l.png"},
+ // 1L — 1 blok = 9 dona
+ {n:"Kir yuvish geli",l:"1L",c:"Qizil",price:45000,block:9,img:"qizil1l.jpg"},
+ {n:"Kir yuvish geli",l:"1L",c:"Sariq",price:45000,block:9,img:"Sariq1l.png"},
+ {n:"Kir yuvish geli",l:"1L",c:"Ko‘k",price:45000,block:9,img:"kok1l.png"},
+ {n:"Idish yuvish geli",l:"1L",c:"",price:45000,block:9,img:"idishgeli1l.jpg"},
 
-{n:"2.5L Qizil",l:"2.5L",c:"Qizil",price:50000,block:4,img:"qizil2.5l.png"},
-{n:"2.5L Sariq",l:"2.5L",c:"Sariq",price:50000,block:4,img:"sariq2.5l.png"},
-{n:"2.5L Ko‘k",l:"2.5L",c:"Ko‘k",price:50000,block:4,img:"kok2.5l.png"},
+ // 2.5L — 1 blok = 4 dona
+ {n:"Kir yuvish geli",l:"2.5L",c:"Qizil",price:50000,block:4,img:"qizil2.5l.png"},
+ {n:"Kir yuvish geli",l:"2.5L",c:"Sariq",price:50000,block:4,img:"sariq2.5l.png"},
+ {n:"Kir yuvish geli",l:"2.5L",c:"Ko‘k",price:50000,block:4,img:"kok2.5l.png"},
+ {n:"Idish yuvish geli",l:"2.5L",c:"",price:50000,block:4,img:"idishgeli2.5l.jpg"},
 
-{n:"5L Qizil",l:"5L",c:"Qizil",price:25000,block:1,img:"qizil5l.png"},
-{n:"5L Sariq",l:"5L",c:"Sariq",price:25000,block:1,img:"sariq5l.png"},
-{n:"5L Ko‘k",l:"5L",c:"Ko‘k",price:25000,block:1,img:"kok5l.png"},
+ // 5L — ranglari bilan alohida
+ {n:"Kir yuvish geli",l:"5L",c:"Qizil",price:25000,block:1,img:"qizil5l.png"},
+ {n:"Kir yuvish geli",l:"5L",c:"Sariq",price:25000,block:1,img:"sariq5l.png"},
+ {n:"Kir yuvish geli",l:"5L",c:"Ko‘k",price:25000,block:1,img:"kok5l.png"},
+
+ {n:"Idish yuvish geli",l:"5L",c:"Qizil",price:25000,block:1,img:"idishgeliqizil5l.jpg"},
+ {n:"Idish yuvish geli",l:"5L",c:"Sariq",price:25000,block:1,img:"idishgelisariq5l.jpg"},
+ {n:"Idish yuvish geli",l:"5L",c:"Yashil",price:25000,block:1,img:"idishgeliyashil5l.jpg"}
 ];
-
-let order=[];
 
 const box=document.getElementById("products");
 products.forEach((p,i)=>{
-box.innerHTML+=`
-<div class="card">
-<img src="${p.img}">
-<h4>${p.n}</h4>
-<div class="price">1 blok = ${p.price.toLocaleString()} so‘m</div>
-<div class="blockinfo">1 blokda ${p.block} ta</div>
-<input type="number" min="0" placeholder="Necha blok?" onchange="order[${i}]=this.value">
-</div>`;
+ box bu.innerHTML+=`
+ <div class="card">
+  <img src="${p.img}">
+  <b>${p.n}</b><br>
+  ${p.l} ${p.c}<br>
+  Narxi: ${p.price} so‘m / blok<br>
+  <small>1 blok = ${p.block} dona</small>
+  <input type="number" min="0" placeholder="Necha blok?" data-i="${i}" oninput="calc()">
+ </div>`;
 });
 
-/* 📍 VILOYAT & TUMAN */
-const data={
-"Toshkent":["Bektemir","Chilonzor","Mirzo Ulug‘bek","Yunusobod","Olmazor","Yakkasaroy"],
-"Andijon":["Andijon sh.","Asaka","Shahrixon","Xo‘jaobod"],
-"Buxoro":["Buxoro sh.","Vobkent","G‘ijduvon","Qorako‘l","Romitan"],
-"Farg‘ona":["Farg‘ona sh.","Qo‘qon","Marg‘ilon","Rishton"],
-"Namangan":["Namangan sh.","Chortoq","Pop","Uychi"],
-"Samarqand":["Samarqand sh.","Kattaqo‘rg‘on","Urgut","Ishtixon"],
-"Qashqadaryo":["Qarshi","Shahrisabz","Koson","G‘uzor"],
-"Surxondaryo":["Termiz","Denov","Boysun","Sherobod"],
-"Xorazm":["Urganch","Xiva","Shovot"],
-"Navoiy":["Navoiy sh.","Zarafshon","Konimex"],
-"Jizzax":["Jizzax sh.","Zomin","Baxmal"],
-"Sirdaryo":["Guliston","Yangiyer","Boyovut"],
-"Qoraqalpog‘iston":["Nukus","Xo‘jayli","Taxiatosh"]
+/* 💰 HISOB */
+function calc(){
+ let sum=0;
+ document.querySelectorAll("input[data-i]").forEach(el=>{
+  const q=+el.value||0;
+  sum+=q*products[el.dataset.i].price;
+ });
+ document.getElementById("sum").innerText=sum;
+}
+
+/* 📍 VILOYAT / TUMAN — TO‘LIQ */
+const districts={
+ "Andijon":["Andijon sh.","Asaka","Baliqchi","Bo‘ston","Buloqboshi","Izboskan","Jalaquduq","Marhamat","Oltinko‘l","Paxtaobod","Qo‘rg‘ontepa","Shahrixon","Ulug‘nor"],
+ "Buxoro":["Buxoro sh.","Buxoro t.","G‘ijduvon","Jondor","Kogon sh.","Kogon t.","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent"],
+ "Farg‘ona":["Farg‘ona sh.","Beshariq","Bog‘dod","Buvayda","Dang‘ara","Furqat","Qo‘shtepa","Quva","Quvasoy","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon"],
+ "Samarqand":["Samarqand sh.","Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Oqdaryo","Paxtachi","Payariq","Toyloq","Urgut"],
+ "Toshkent vil.":["Angren","Bekobod","Bo‘ka","Chinoz","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Yangiyo‘l","Zangiota"],
+ "Toshkent sh.":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yunusobod"]
 };
 
-const r=document.getElementById("region");
-const d=document.getElementById("district");
+const regionSel=document.getElementById("region");
+const distSel=document.getElementById("district");
 
-for(let k in data) r.innerHTML+=`<option>${k}</option>`;
-r.onchange=()=>{
-d.innerHTML="";
-data[r.value].forEach(t=>d.innerHTML+=`<option>${t}</option>`);
-}
-r.onchange();
-
-/* 📤 YUBORISH */
-function sendOrder(){
-let txt="🧾 YANGI BUYURTMA\n";
-txt+=`👤 ${name.value}\n📞 ${phone.value}\n📍 ${r.value}, ${d.value}\n\n`;
-
-products.forEach((p,i)=>{
-if(order[i]>0){
-txt+=`${p.n} — ${order[i]} blok\n`;
-}
+Object.keys(districts).forEach(r=>{
+ regionSel.innerHTML+=`<option>${r}</option>`;
 });
 
-fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({chat_id:CHAT_ID,text:txt})
-}).then(()=>alert("✅ Buyurtma yuborildi"));
+function loadDistricts(){
+ distSel.innerHTML="<option value=''>Tumanni tanlang</option>";
+ districts[regionSel.value]?.forEach(d=>{
+  distSel.innerHTML+=`<option>${d}</option>`;
+ });
+}
+
+/* 📤 TELEGRAMGA YUBORISH */
+function sendOrder(){
+ let text="🧾 AFROSIYO BUYURTMA\n\n";
+ let ok=false;
+
+ document.querySelectorAll("input[data-i]").forEach(el=>{
+  const q=+el.value||0;
+  if(q>0){
+   const p=products[el.dataset.i];
+   text+=`${p.n} ${p.l} ${p.c} — ${q} blok\n`;
+   ok=true;
+  }
+ });
+
+ if(!ok){alert("Mahsulot tanlang");return;}
+
+ text+=`\n👤 ${name.value}\n📞 ${phone.value}
+📍 ${region.value}, ${district.value}, ${address.value}
+💰 Jami: ${sum.innerText} so‘m`;
+
+ fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({chat_id:CHAT_ID,text})
+ });
+
+ alert("✅ Buyurtma yuborildi");
 }
 </script>
 

@@ -60,38 +60,36 @@ const CHAT_ID="@AfrosiyoBuyurtma";
 
 /* 🧴 MAHSULOTLAR */
 const products=[
- // 1L — 1 blok = 9 dona
- {n:"Kir yuvish geli",l:"1L",c:"Qizil",price:45000,block:9,img:"qizil1l.jpg"},
- {n:"Kir yuvish geli",l:"1L",c:"Sariq",price:45000,block:9,img:"Sariq1l.png"},
- {n:"Kir yuvish geli",l:"1L",c:"Ko‘k",price:45000,block:9,img:"kok1l.png"},
- {n:"Idish yuvish geli",l:"1L",c:"",price:45000,block:9,img:"idishgeli1l.jpg"},
+ {n:"Kir yuvish geli",l:"1L",c:"Qizil",price:45000,unit:"blok",block:9,img:"qizil1l.jpg"},
+ {n:"Kir yuvish geli",l:"1L",c:"Sariq",price:45000,unit:"blok",block:9,img:"Sariq1l.png"},
+ {n:"Kir yuvish geli",l:"1L",c:"Ko‘k",price:45000,unit:"blok",block:9,img:"kok1l.png"},
+ {n:"Idish yuvish geli",l:"1L",c:"",price:45000,unit:"blok",block:9,img:"idishgeli1l.jpg"},
 
- // 2.5L — 1 blok = 4 dona
- {n:"Kir yuvish geli",l:"2.5L",c:"Qizil",price:50000,block:4,img:"qizil2.5l.png"},
- {n:"Kir yuvish geli",l:"2.5L",c:"Sariq",price:50000,block:4,img:"sariq2.5l.png"},
- {n:"Kir yuvish geli",l:"2.5L",c:"Ko‘k",price:50000,block:4,img:"kok2.5l.png"},
- {n:"Idish yuvish geli",l:"2.5L",c:"",price:50000,block:4,img:"idishgeli2.5l.jpg"},
+ {n:"Kir yuvish geli",l:"2.5L",c:"Qizil",price:50000,unit:"blok",block:4,img:"qizil2.5l.png"},
+ {n:"Kir yuvish geli",l:"2.5L",c:"Sariq",price:50000,unit:"blok",block:4,img:"sariq2.5l.png"},
+ {n:"Kir yuvish geli",l:"2.5L",c:"Ko‘k",price:50000,unit:"blok",block:4,img:"kok2.5l.png"},
+ {n:"Idish yuvish geli",l:"2.5L",c:"",price:50000,unit:"blok",block:4,img:"idishgeli2.5l.jpg"},
 
- // 5L — ranglari bilan alohida
- {n:"Kir yuvish geli",l:"5L",c:"Qizil",price:25000,block:1,img:"qizil5l.png"},
- {n:"Kir yuvish geli",l:"5L",c:"Sariq",price:25000,block:1,img:"sariq5l.png"},
- {n:"Kir yuvish geli",l:"5L",c:"Ko‘k",price:25000,block:1,img:"kok5l.png"},
+ {n:"Kir yuvish geli",l:"5L",c:"Qizil",price:25000,unit:"dona",block:1,img:"qizil5l.png"},
+ {n:"Kir yuvish geli",l:"5L",c:"Sariq",price:25000,unit:"dona",block:1,img:"sariq5l.png"},
+ {n:"Kir yuvish geli",l:"5L",c:"Ko‘k",price:25000,unit:"dona",block:1,img:"kok5l.png"},
 
- {n:"Idish yuvish geli",l:"5L",c:"Qizil",price:25000,block:1,img:"idishgeliqizil5l.jpg"},
- {n:"Idish yuvish geli",l:"5L",c:"Sariq",price:25000,block:1,img:"idishgelisariq5l.jpg"},
- {n:"Idish yuvish geli",l:"5L",c:"Yashil",price:25000,block:1,img:"idishgeliyashil5l.jpg"}
+ {n:"Idish yuvish geli",l:"5L",c:"Qizil",price:25000,unit:"dona",block:1,img:"idishgeliqizil5l.jpg"},
+ {n:"Idish yuvish geli",l:"5L",c:"Sariq",price:25000,unit:"dona",block:1,img:"idishgelisariq5l.jpg"},
+ {n:"Idish yuvish geli",l:"5L",c:"Yashil",price:25000,unit:"dona",block:1,img:"idishgeliyashil5l.jpg"}
 ];
 
 const box=document.getElementById("products");
+
 products.forEach((p,i)=>{
  box.innerHTML+=`
  <div class="card">
   <img src="${p.img}">
   <b>${p.n}</b><br>
   ${p.l} ${p.c}<br>
-  Narxi: ${p.price} so‘m / blok<br>
-  <small>1 blok = ${p.block} dona</small>
-  <input type="number" min="0" placeholder="Necha blok?" data-i="${i}" oninput="calc()">
+  Narxi: ${p.price} so‘m / ${p.unit}<br>
+  ${p.unit==="blok" ? `<small>1 blok = ${p.block} dona</small>` : ""}
+  <input type="number" min="0" placeholder="Necha ${p.unit}?" data-i="${i}" oninput="calc()">
  </div>`;
 });
 
@@ -105,14 +103,14 @@ function calc(){
  document.getElementById("sum").innerText=sum;
 }
 
-/* 📍 VILOYAT / TUMAN — TO‘LIQ */
+/* 📍 VILOYAT / TUMAN */
 const districts={
  "Andijon":["Andijon sh.","Asaka","Baliqchi","Bo‘ston","Buloqboshi","Izboskan","Jalaquduq","Marhamat","Oltinko‘l","Paxtaobod","Qo‘rg‘ontepa","Shahrixon","Ulug‘nor"],
- "Buxoro":["Buxoro sh.","Buxoro t.","G‘ijduvon","Jondor","Kogon sh.","Kogon t.","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent"],
- "Farg‘ona":["Farg‘ona sh.","Beshariq","Bog‘dod","Buvayda","Dang‘ara","Furqat","Qo‘shtepa","Quva","Quvasoy","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon"],
- "Samarqand":["Samarqand sh.","Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Oqdaryo","Paxtachi","Payariq","Toyloq","Urgut"],
- "Toshkent vil.":["Angren","Bekobod","Bo‘ka","Chinoz","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Yangiyo‘l","Zangiota"],
- "Toshkent sh.":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yunusobod"]
+ "Buxoro":["Buxoro sh.","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Romitan","Shofirkon","Vobkent"],
+ "Farg‘ona":["Farg‘ona sh.","Beshariq","Bog‘dod","Buvayda","Dang‘ara","Rishton","Quva","Toshloq","Uchko‘prik"],
+ "Samarqand":["Samarqand sh.","Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Urgut"],
+ "Toshkent vil.":["Angren","Bekobod","Bo‘ka","Chinoz","Ohangaron","Parkent","Yangiyo‘l"],
+ "Toshkent sh.":["Chilonzor","Yunusobod","Mirzo Ulug‘bek","Sergeli","Uchtepa","Shayxontohur"]
 };
 
 const regionSel=document.getElementById("region");
@@ -129,7 +127,7 @@ function loadDistricts(){
  });
 }
 
-/* 📤 TELEGRAMGA YUBORISH */
+/* 📤 TELEGRAM */
 function sendOrder(){
  let text="🧾 AFROSIYO BUYURTMA\n\n";
  let ok=false;
@@ -138,14 +136,15 @@ function sendOrder(){
   const q=+el.value||0;
   if(q>0){
    const p=products[el.dataset.i];
-   text+=`${p.n} ${p.l} ${p.c} — ${q} blok\n`;
+   text+=`${p.n} ${p.l} ${p.c} — ${q} ${p.unit}\n`;
    ok=true;
   }
  });
 
  if(!ok){alert("Mahsulot tanlang");return;}
 
- text+=`\n👤 ${name.value}\n📞 ${phone.value}
+ text+=`\n👤 ${name.value}
+📞 ${phone.value}
 📍 ${region.value}, ${district.value}, ${address.value}
 💰 Jami: ${sum.innerText} so‘m`;
 
@@ -161,4 +160,3 @@ function sendOrder(){
 
 </body>
 </html>
-
